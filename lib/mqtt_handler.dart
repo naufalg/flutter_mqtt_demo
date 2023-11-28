@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-// import 'package:mqtt_test/constant/constant.dart';
+import 'package:mqtt_test/constant/constant.dart';
 
-// import 'bloc/bloc.dart';
+import 'bloc/bloc.dart';
 
 class MqttHandler with ChangeNotifier {
   final ValueNotifier<String> data = ValueNotifier<String>("");
@@ -44,7 +44,6 @@ class MqttHandler with ChangeNotifier {
     client.keepAlivePeriod = 60;
     client.logging(on: true);
 
-    /// Set the correct MQTT protocol for mosquito
     client.setProtocolV311();
 
     final connMessage = MqttConnectMessage()
@@ -88,7 +87,7 @@ class MqttHandler with ChangeNotifier {
       notifyListeners();
       log('MQTT_LOGS:: New data arrived: topic is <${c[0].topic}>, payload is $pt');
       setMessage(pt);
-      // handleMessage(pt);
+      handleMessage(pt);
     });
 
     return client;
@@ -171,14 +170,14 @@ class MqttHandler with ChangeNotifier {
     toggleDisonnected();
   }
 
-  // handleMessage(String message) {
-  //   log('handleMessage: $message');
+  handleMessage(String message) {
+    log('handleMessage: $message');
 
-  //   switch (message) {
-  //     case 'refresh user':
-  //       bloc.userBloc.getMockUserData('${urlConstant.mockApiUrl}/users');
-  //       break;
-  //     default:
-  //   }
-  // }
+    switch (message) {
+      case 'refresh user':
+        bloc.userBloc.getMockUserData('${urlConstant.mockApiUrl}/users');
+        break;
+      default:
+    }
+  }
 }

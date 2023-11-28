@@ -2,13 +2,9 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-// import 'package:mqtt_client/mqtt_client.dart';
-// import 'package:mqtt_client/mqtt_server_client.dart';
-// import 'package:mqtt_test/main.dart';
+import 'package:mqtt_test/bloc/bloc.dart';
 import 'package:mqtt_test/mqtt_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-// import '../bloc/bloc.dart';
 
 SharedPreferences prefs;
 
@@ -46,6 +42,7 @@ class _MessageScreenState extends State<MessageScreen> {
 
   _toggleDisonnected() {
     setState(() => isConnected = false);
+    bloc.userBloc.nullifyStream();
   }
 
   _toggleSubscribed() {
@@ -55,6 +52,7 @@ class _MessageScreenState extends State<MessageScreen> {
   _toggleUnSubscribed() {
     setState(() => isSubscribed = false);
     setState(() => messageReceived = 'Waiting New Message...');
+    bloc.userBloc.nullifyStream();
   }
 
   void getSharedPref() async {
@@ -307,37 +305,38 @@ class _MessageScreenState extends State<MessageScreen> {
                       ],
                     )),
 
-              // isConnected && isSubscribed
-              //     ? StreamBuilder<List<Map>>(
-              //         stream: bloc.userBloc.getMockUserDataStream,
-              //         builder: (context, snapshot) {
-              //           if (snapshot.hasError ||
-              //               snapshot.connectionState == ConnectionState.done) {
-              //             log("hasData error");
-              //             return InkWell(
-              //               child: SizedBox(
-              //                   height: deviceSize.height * 0.3,
-              //                   child: Text('error')),
-              //               // onTap: () => initDashboard()
-              //             );
-              //           }
-              //           if (snapshot.connectionState ==
-              //               ConnectionState.waiting) {
-              //             return Container();
-              //           }
-              //           if (snapshot.hasData) {
-              //             List<Map> usersData = snapshot.data;
-              //             log('snapshot.hasData: ${snapshot.data}');
-              //             bool isPageLoading = (snapshot.connectionState !=
-              //                     ConnectionState.done &&
-              //                 !snapshot.hasData);
+              isConnected && isSubscribed
+                  ? StreamBuilder<List<Map>>(
+                      stream: bloc.userBloc.getMockUserDataStream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError ||
+                            snapshot.connectionState == ConnectionState.done) {
+                          log("hasData error");
+                          return InkWell(
+                            child: SizedBox(
+                                height: deviceSize.height * 0.3,
+                                child: Text('error')),
+                            // onTap: () => initDashboard()
+                          );
+                        }
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Container();
+                        }
+                        if (snapshot.hasData) {
+                          List<Map> usersData = snapshot.data;
+                          log('snapshot.hasData: ${snapshot.data}');
+                          bool isPageLoading = (snapshot.connectionState !=
+                                  ConnectionState.done &&
+                              !snapshot.hasData);
 
-              //             return Column(children: generateUserView(usersData));
-              //           }
-              //           return const CircularProgressIndicator();
-              //         },
-              //       )
-              //     : Container(),
+                          return Column(children: generateUserView(usersData));
+                        }
+                        return const CircularProgressIndicator();
+                      },
+                    )
+                  : Container(),
+
               // StreamBuilder<List<MqttReceivedMessage<MqttMessage>>>(
               //     stream:
               //         mqttHandler.client.updates, // Receive MQTT updates
